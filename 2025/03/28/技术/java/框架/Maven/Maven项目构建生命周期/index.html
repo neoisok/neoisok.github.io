@@ -1,0 +1,422 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Maven项目构建生命周期 | Neo is ok</title><meta name="author" content="Neo"><meta name="copyright" content="Neo"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Maven 项目构建生命周期（Build Lifecycle） 一、什么是生命周期（Lifecycle）？ 生命周期是 Maven 的核心机制之一，定义了 项目从清理到打包再到部署的全过程，是由一系列有序的构建阶段（Phase）组成的。  简单理解就是：你运行一个 Maven 命令，比如 mvn install，Maven 会自动按照一个预定义的顺序，执行从编译、测试、打包到安装的所有阶段。  二">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Maven项目构建生命周期">
+<meta property="og:url" content="https://neoisok.github.io/2025/03/28/%E6%8A%80%E6%9C%AF/java/%E6%A1%86%E6%9E%B6/Maven/Maven%E9%A1%B9%E7%9B%AE%E6%9E%84%E5%BB%BA%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/index.html">
+<meta property="og:site_name" content="Neo is ok">
+<meta property="og:description" content="Maven 项目构建生命周期（Build Lifecycle） 一、什么是生命周期（Lifecycle）？ 生命周期是 Maven 的核心机制之一，定义了 项目从清理到打包再到部署的全过程，是由一系列有序的构建阶段（Phase）组成的。  简单理解就是：你运行一个 Maven 命令，比如 mvn install，Maven 会自动按照一个预定义的顺序，执行从编译、测试、打包到安装的所有阶段。  二">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://neoisok.github.io/img/%E6%9C%BA%E5%99%A8%E7%8C%AB%E5%A4%B4%E5%83%8F.jpeg">
+<meta property="article:published_time" content="2025-03-27T16:24:58.000Z">
+<meta property="article:modified_time" content="2025-03-27T16:25:48.521Z">
+<meta property="article:author" content="Neo">
+<meta property="article:tag" content="Maven">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://neoisok.github.io/img/%E6%9C%BA%E5%99%A8%E7%8C%AB%E5%A4%B4%E5%83%8F.jpeg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Maven项目构建生命周期",
+  "url": "https://neoisok.github.io/2025/03/28/%E6%8A%80%E6%9C%AF/java/%E6%A1%86%E6%9E%B6/Maven/Maven%E9%A1%B9%E7%9B%AE%E6%9E%84%E5%BB%BA%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/",
+  "image": "https://neoisok.github.io/img/%E6%9C%BA%E5%99%A8%E7%8C%AB%E5%A4%B4%E5%83%8F.jpeg",
+  "datePublished": "2025-03-27T16:24:58.000Z",
+  "dateModified": "2025-03-27T16:25:48.521Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Neo",
+      "url": "https://neoisok.github.io/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/%E6%9C%BA%E5%99%A8%E7%8C%AB%E5%A4%B4%E5%83%8F.jpeg"><link rel="canonical" href="https://neoisok.github.io/2025/03/28/%E6%8A%80%E6%9C%AF/java/%E6%A1%86%E6%9E%B6/Maven/Maven%E9%A1%B9%E7%9B%AE%E6%9E%84%E5%BB%BA%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Maven项目构建生命周期',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg" style="background-image: url(/img/背景.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/%E6%9C%BA%E5%99%A8%E7%8C%AB%E5%A4%B4%E5%83%8F.jpeg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">10</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-code"></i><span> Java</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/Springboot/"><i class="fa-fw fas fa-leaf"></i><span> Springboot</span></a></li><li><a class="site-page child" href="/Mybatis/"><i class="fa-fw fas fa-database"></i><span> Mybatis</span></a></li><li><a class="site-page child" href="/Maven/"><i class="fa-fw fas fa-feather"></i><span> Maven</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/海.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Neo is ok</span></a><a class="nav-page-title" href="/"><span class="site-name">Maven项目构建生命周期</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> </span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-code"></i><span> Java</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/Springboot/"><i class="fa-fw fas fa-leaf"></i><span> Springboot</span></a></li><li><a class="site-page child" href="/Mybatis/"><i class="fa-fw fas fa-database"></i><span> Mybatis</span></a></li><li><a class="site-page child" href="/Maven/"><i class="fa-fw fas fa-feather"></i><span> Maven</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Maven项目构建生命周期</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-03-27T16:24:58.000Z" title="发表于 2025-03-28 00:24:58">2025-03-28</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-03-27T16:25:48.521Z" title="更新于 2025-03-28 00:25:48">2025-03-28</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/java/">java</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/java/%E6%A1%86%E6%9E%B6/">框架</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/java/%E6%A1%86%E6%9E%B6/Maven/">Maven</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="Maven-项目构建生命周期（Build-Lifecycle）"><a href="#Maven-项目构建生命周期（Build-Lifecycle）" class="headerlink" title="Maven 项目构建生命周期（Build Lifecycle）"></a>Maven 项目构建生命周期（Build Lifecycle）</h2><hr>
+<h3 id="一、什么是生命周期（Lifecycle）？"><a href="#一、什么是生命周期（Lifecycle）？" class="headerlink" title="一、什么是生命周期（Lifecycle）？"></a>一、什么是生命周期（Lifecycle）？</h3><blockquote>
+<p>生命周期是 Maven 的核心机制之一，定义了 <strong>项目从清理到打包再到部署的全过程</strong>，是由一系列有序的构建阶段（Phase）组成的。</p>
+</blockquote>
+<p>简单理解就是：你运行一个 Maven 命令，比如 <code>mvn install</code>，Maven 会自动按照一个预定义的顺序，执行从编译、测试、打包到安装的所有阶段。</p>
+<hr>
+<h3 id="二、Maven-的三大内置生命周期"><a href="#二、Maven-的三大内置生命周期" class="headerlink" title="二、Maven 的三大内置生命周期"></a>二、Maven 的三大内置生命周期</h3><table>
+<thead>
+<tr>
+<th>生命周期名称</th>
+<th>作用说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>default</strong>（默认生命周期）</td>
+<td>项目的编译、测试、打包、部署等</td>
+</tr>
+<tr>
+<td><strong>clean</strong></td>
+<td>清理项目（删除之前构建的产物）</td>
+</tr>
+<tr>
+<td><strong>site</strong></td>
+<td>生成项目文档、报告等</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="三、默认生命周期（default-lifecycle）"><a href="#三、默认生命周期（default-lifecycle）" class="headerlink" title="三、默认生命周期（default lifecycle）"></a>三、默认生命周期（default lifecycle）</h3><p>Maven 的构建流程由多个“阶段”（Phase）组成，这些阶段是<strong>有顺序的</strong>，执行其中一个阶段会连带执行之前的所有阶段。</p>
+<h4 id="主要构建阶段如下："><a href="#主要构建阶段如下：" class="headerlink" title="主要构建阶段如下："></a>主要构建阶段如下：</h4><table>
+<thead>
+<tr>
+<th>阶段名（Phase）</th>
+<th>功能说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>validate</strong></td>
+<td>验证项目是否正确，例如目录结构、必要信息是否完整</td>
+</tr>
+<tr>
+<td><strong>compile</strong></td>
+<td>编译主源码（src&#x2F;main&#x2F;java）</td>
+</tr>
+<tr>
+<td><strong>test</strong></td>
+<td>编译并运行单元测试（src&#x2F;test&#x2F;java）</td>
+</tr>
+<tr>
+<td><strong>package</strong></td>
+<td>打包编译后的代码（如 jar&#x2F;war）</td>
+</tr>
+<tr>
+<td><strong>verify</strong></td>
+<td>运行集成测试，验证包是否有效</td>
+</tr>
+<tr>
+<td><strong>install</strong></td>
+<td>安装到本地 Maven 仓库，供本机其他项目使用</td>
+</tr>
+<tr>
+<td><strong>deploy</strong></td>
+<td>发布到远程仓库，供团队共享使用（通常结合 CI&#x2F;CD）</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>📝 示例：<code>mvn install</code> 会依次执行：<code>validate → compile → test → package → verify → install</code></p>
+</blockquote>
+<hr>
+<h3 id="四、clean-生命周期"><a href="#四、clean-生命周期" class="headerlink" title="四、clean 生命周期"></a>四、clean 生命周期</h3><p>用于清理之前构建的文件，主要阶段：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>pre-clean</strong></td>
+<td>清理前的准备工作（插件扩展用）</td>
+</tr>
+<tr>
+<td><strong>clean</strong></td>
+<td>删除 <code>target/</code> 目录（编译产物）</td>
+</tr>
+<tr>
+<td><strong>post-clean</strong></td>
+<td>清理后的收尾操作</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>常用命令：<code>mvn clean</code> — 清理旧文件，避免构建污染。</p>
+</blockquote>
+<hr>
+<h3 id="五、site-生命周期（可选模块）"><a href="#五、site-生命周期（可选模块）" class="headerlink" title="五、site 生命周期（可选模块）"></a>五、site 生命周期（可选模块）</h3><p>用于生成项目站点文档（文档网站、测试覆盖率、依赖报告等）：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>pre-site</strong></td>
+<td>准备生成站点</td>
+</tr>
+<tr>
+<td><strong>site</strong></td>
+<td>生成文档网站</td>
+</tr>
+<tr>
+<td><strong>post-site</strong></td>
+<td>站点生成后的处理</td>
+</tr>
+<tr>
+<td><strong>site-deploy</strong></td>
+<td>部署站点到服务器</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="六、生命周期、阶段与插件三者关系"><a href="#六、生命周期、阶段与插件三者关系" class="headerlink" title="六、生命周期、阶段与插件三者关系"></a>六、生命周期、阶段与插件三者关系</h3><p>生命周期 ≠ 阶段 ≠ 插件<br>Maven 实际上只是框架，<strong>真正执行工作的都是插件</strong>。</p>
+<p>例如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn clean</span><br></pre></td></tr></table></figure>
+<p>执行的是 <code>clean</code> 生命周期的 <code>clean</code> 阶段，具体操作由 <code>maven-clean-plugin</code> 实现。</p>
+<p>下面是对**“六、生命周期、阶段与插件三者关系”<strong>的</strong>详细讲解**，包括概念区分、调用机制、示例分析、常见误区等</p>
+<hr>
+<h4 id="1️⃣-三者核心定义"><a href="#1️⃣-三者核心定义" class="headerlink" title="1️⃣ 三者核心定义"></a>1️⃣ 三者核心定义</h4><table>
+<thead>
+<tr>
+<th>概念</th>
+<th>定义</th>
+<th>举例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>生命周期</strong>（Lifecycle）</td>
+<td>一组预定义的构建阶段，用于组织项目构建过程</td>
+<td><code>default</code>、<code>clean</code>、<code>site</code></td>
+</tr>
+<tr>
+<td><strong>阶段</strong>（Phase）</td>
+<td>生命周期中的一个构建步骤，会被按顺序执行</td>
+<td><code>compile</code>、<code>test</code>、<code>package</code>、<code>install</code> 等</td>
+</tr>
+<tr>
+<td><strong>插件</strong>（Plugin）</td>
+<td>执行具体构建行为的工具，是 Maven 的扩展机制</td>
+<td><code>maven-compiler-plugin</code>、<code>maven-surefire-plugin</code> 等</td>
+</tr>
+</tbody></table>
+<p>➡️ <strong>阶段是生命周期的一部分，插件是实际干活的角色。</strong></p>
+<hr>
+<h4 id="2️⃣-三者调用关系：你执行阶段，Maven调用插件"><a href="#2️⃣-三者调用关系：你执行阶段，Maven调用插件" class="headerlink" title="2️⃣ 三者调用关系：你执行阶段，Maven调用插件"></a>2️⃣ 三者调用关系：<strong>你执行阶段，Maven调用插件</strong></h4><p>比如执行命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn package</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>触发的是 <code>default</code> 生命周期中的 <code>package</code> 阶段</li>
+<li>Maven 会找该阶段默认绑定的插件和目标（goal）</li>
+<li>执行 <code>maven-jar-plugin:jar</code> 来打包生成 <code>.jar</code> 文件</li>
+</ul>
+<hr>
+<h4 id="3️⃣-插件中的目标（Goal）"><a href="#3️⃣-插件中的目标（Goal）" class="headerlink" title="3️⃣ 插件中的目标（Goal）"></a>3️⃣ 插件中的目标（Goal）</h4><p>每个插件有一个或多个 <strong>目标（goal）</strong>，是插件中的具体任务单位。</p>
+<p>例如：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-compiler-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.8.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">executions</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">phase</span>&gt;</span>compile<span class="tag">&lt;/<span class="name">phase</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">goal</span>&gt;</span>compile<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">executions</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>表示：在 <code>compile</code> 阶段执行 <code>maven-compiler-plugin</code> 插件的 <code>compile</code> 目标。</p>
+<hr>
+<h4 id="4️⃣-阶段与插件绑定关系（默认）"><a href="#4️⃣-阶段与插件绑定关系（默认）" class="headerlink" title="4️⃣ 阶段与插件绑定关系（默认）"></a>4️⃣ 阶段与插件绑定关系（默认）</h4><table>
+<thead>
+<tr>
+<th>阶段（Phase）</th>
+<th>默认绑定插件及目标（Goal）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>compile</td>
+<td><code>maven-compiler-plugin:compile</code></td>
+</tr>
+<tr>
+<td>test</td>
+<td><code>maven-surefire-plugin:test</code></td>
+</tr>
+<tr>
+<td>package</td>
+<td><code>maven-jar-plugin:jar</code> &#x2F; <code>maven-war-plugin:war</code></td>
+</tr>
+<tr>
+<td>install</td>
+<td><code>maven-install-plugin:install</code></td>
+</tr>
+<tr>
+<td>deploy</td>
+<td><code>maven-deploy-plugin:deploy</code></td>
+</tr>
+</tbody></table>
+<p>这些绑定都是<strong>默认绑定</strong>，也可以在 POM 中自定义绑定其他插件或替换默认插件。</p>
+<hr>
+<h4 id="5️⃣-可视化总结关系图："><a href="#5️⃣-可视化总结关系图：" class="headerlink" title="5️⃣ 可视化总结关系图："></a>5️⃣ 可视化总结关系图：</h4><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[生命周期 Lifecycle]</span><br><span class="line">         ↓</span><br><span class="line"> ┌──────────────┐</span><br><span class="line"> │    阶段 Phase   │ → 按顺序执行（compile → test → package）</span><br><span class="line"> └──────────────┘</span><br><span class="line">         ↓</span><br><span class="line">[插件 Plugin + 目标 Goal]  ← 真正执行具体操作</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="6️⃣-常见误区澄清"><a href="#6️⃣-常见误区澄清" class="headerlink" title="6️⃣ 常见误区澄清"></a>6️⃣ 常见误区澄清</h4><table>
+<thead>
+<tr>
+<th>误区</th>
+<th>正确认知</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>以为 <code>mvn compile</code> 是插件命令</td>
+<td>❌ 不是插件，而是执行“阶段”</td>
+</tr>
+<tr>
+<td>插件必须写在 POM 里才执行</td>
+<td>❌ 有默认插件绑定，非必须</td>
+</tr>
+<tr>
+<td>执行某阶段只执行该阶段</td>
+<td>❌ 会连带执行前面所有阶段</td>
+</tr>
+</tbody></table>
+<hr>
+<h4 id="7️⃣-实践建议：查看阶段与插件绑定关系"><a href="#7️⃣-实践建议：查看阶段与插件绑定关系" class="headerlink" title="7️⃣ 实践建议：查看阶段与插件绑定关系"></a>7️⃣ 实践建议：查看阶段与插件绑定关系</h4><p>你可以通过以下命令查看完整的生命周期绑定：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn <span class="built_in">help</span>:describe -Dcmd=compile</span><br></pre></td></tr></table></figure>
+
+<p>或查看某个插件目标的详细信息：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn <span class="built_in">help</span>:describe -Dplugin=compiler -Dfull</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="七、常用构建命令速查表"><a href="#七、常用构建命令速查表" class="headerlink" title="七、常用构建命令速查表"></a>七、常用构建命令速查表</h3><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>mvn clean</code></td>
+<td>清理项目</td>
+</tr>
+<tr>
+<td><code>mvn compile</code></td>
+<td>编译源代码</td>
+</tr>
+<tr>
+<td><code>mvn test</code></td>
+<td>执行单元测试</td>
+</tr>
+<tr>
+<td><code>mvn package</code></td>
+<td>打包</td>
+</tr>
+<tr>
+<td><code>mvn install</code></td>
+<td>安装到本地仓库</td>
+</tr>
+<tr>
+<td><code>mvn deploy</code></td>
+<td>发布到远程仓库</td>
+</tr>
+</tbody></table>
+<hr>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://neoisok.github.io">Neo</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://neoisok.github.io/2025/03/28/%E6%8A%80%E6%9C%AF/java/%E6%A1%86%E6%9E%B6/Maven/Maven%E9%A1%B9%E7%9B%AE%E6%9E%84%E5%BB%BA%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/">https://neoisok.github.io/2025/03/28/%E6%8A%80%E6%9C%AF/java/%E6%A1%86%E6%9E%B6/Maven/Maven%E9%A1%B9%E7%9B%AE%E6%9E%84%E5%BB%BA%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://neoisok.github.io" target="_blank">Neo is ok</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Maven/">Maven</a></div><div class="post-share"><div class="social-share" data-image="/img/%E6%9C%BA%E5%99%A8%E7%8C%AB%E5%A4%B4%E5%83%8F.jpeg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2025/03/27/test1/" title="test1"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">test1</div></div><div class="info-2"><div class="info-item-1">Mybatis是一个orm框架 </div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2025/03/27/%E6%8A%80%E6%9C%AF/java/%E6%A1%86%E6%9E%B6/Maven/%E7%90%86%E8%A7%A3Maven%E7%9A%84%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86%E4%B8%8E%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5/" title="Maven 的基本原理与核心概念"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-03-27</div><div class="info-item-2">Maven 的基本原理与核心概念</div></div><div class="info-2"><div class="info-item-1">一、Maven 的基本原理与核心概念1. Maven 是什么？ Maven 是一个基于 POM（Project Object Model）的项目管理与构建自动化工具，主要用于 Java 项目的依赖管理、构建流程、插件系统和生命周期管理。   构建工具：可以将源码编译、打包、测试、部署。 依赖管理工具：自动下载项目依赖（jar 包），并解决依赖冲突。 项目标准化工具：统一项目结构与构建流程，提升团队协作效率。   2. Maven 的三大核心功能   功能模块 说明    依赖管理 自动下载、更新、版本控制 Jar 包，解决依赖传递   生命周期管理 定义项目构建的标准流程，如编译、测试、打包、部署   插件机制 插件实现所有构建行为，例如编译、测试、生成文档等    3. Maven 的核心概念3.1 POM（Project Object Model） Maven 项目的核心配置文件是 pom.xml 使用 XML 结构描述项目依赖、插件、版本、构建方式等  示例结构（简化版）： 123456789&lt;project&gt; ...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/%E6%9C%BA%E5%99%A8%E7%8C%AB%E5%A4%B4%E5%83%8F.jpeg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Neo</div><div class="author-info-description">分享技术，热爱生活</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">10</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Maven-%E9%A1%B9%E7%9B%AE%E6%9E%84%E5%BB%BA%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%EF%BC%88Build-Lifecycle%EF%BC%89"><span class="toc-number">1.</span> <span class="toc-text">Maven 项目构建生命周期（Build Lifecycle）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%EF%BC%88Lifecycle%EF%BC%89%EF%BC%9F"><span class="toc-number">1.1.</span> <span class="toc-text">一、什么是生命周期（Lifecycle）？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Maven-%E7%9A%84%E4%B8%89%E5%A4%A7%E5%86%85%E7%BD%AE%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-number">1.2.</span> <span class="toc-text">二、Maven 的三大内置生命周期</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E9%BB%98%E8%AE%A4%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%EF%BC%88default-lifecycle%EF%BC%89"><span class="toc-number">1.3.</span> <span class="toc-text">三、默认生命周期（default lifecycle）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E6%9E%84%E5%BB%BA%E9%98%B6%E6%AE%B5%E5%A6%82%E4%B8%8B%EF%BC%9A"><span class="toc-number">1.3.1.</span> <span class="toc-text">主要构建阶段如下：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81clean-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-number">1.4.</span> <span class="toc-text">四、clean 生命周期</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81site-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%EF%BC%88%E5%8F%AF%E9%80%89%E6%A8%A1%E5%9D%97%EF%BC%89"><span class="toc-number">1.5.</span> <span class="toc-text">五、site 生命周期（可选模块）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E3%80%81%E9%98%B6%E6%AE%B5%E4%B8%8E%E6%8F%92%E4%BB%B6%E4%B8%89%E8%80%85%E5%85%B3%E7%B3%BB"><span class="toc-number">1.6.</span> <span class="toc-text">六、生命周期、阶段与插件三者关系</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1%EF%B8%8F%E2%83%A3-%E4%B8%89%E8%80%85%E6%A0%B8%E5%BF%83%E5%AE%9A%E4%B9%89"><span class="toc-number">1.6.1.</span> <span class="toc-text">1️⃣ 三者核心定义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2%EF%B8%8F%E2%83%A3-%E4%B8%89%E8%80%85%E8%B0%83%E7%94%A8%E5%85%B3%E7%B3%BB%EF%BC%9A%E4%BD%A0%E6%89%A7%E8%A1%8C%E9%98%B6%E6%AE%B5%EF%BC%8CMaven%E8%B0%83%E7%94%A8%E6%8F%92%E4%BB%B6"><span class="toc-number">1.6.2.</span> <span class="toc-text">2️⃣ 三者调用关系：你执行阶段，Maven调用插件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3%EF%B8%8F%E2%83%A3-%E6%8F%92%E4%BB%B6%E4%B8%AD%E7%9A%84%E7%9B%AE%E6%A0%87%EF%BC%88Goal%EF%BC%89"><span class="toc-number">1.6.3.</span> <span class="toc-text">3️⃣ 插件中的目标（Goal）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4%EF%B8%8F%E2%83%A3-%E9%98%B6%E6%AE%B5%E4%B8%8E%E6%8F%92%E4%BB%B6%E7%BB%91%E5%AE%9A%E5%85%B3%E7%B3%BB%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%89"><span class="toc-number">1.6.4.</span> <span class="toc-text">4️⃣ 阶段与插件绑定关系（默认）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5%EF%B8%8F%E2%83%A3-%E5%8F%AF%E8%A7%86%E5%8C%96%E6%80%BB%E7%BB%93%E5%85%B3%E7%B3%BB%E5%9B%BE%EF%BC%9A"><span class="toc-number">1.6.5.</span> <span class="toc-text">5️⃣ 可视化总结关系图：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6%EF%B8%8F%E2%83%A3-%E5%B8%B8%E8%A7%81%E8%AF%AF%E5%8C%BA%E6%BE%84%E6%B8%85"><span class="toc-number">1.6.6.</span> <span class="toc-text">6️⃣ 常见误区澄清</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7%EF%B8%8F%E2%83%A3-%E5%AE%9E%E8%B7%B5%E5%BB%BA%E8%AE%AE%EF%BC%9A%E6%9F%A5%E7%9C%8B%E9%98%B6%E6%AE%B5%E4%B8%8E%E6%8F%92%E4%BB%B6%E7%BB%91%E5%AE%9A%E5%85%B3%E7%B3%BB"><span class="toc-number">1.6.7.</span> <span class="toc-text">7️⃣ 实践建议：查看阶段与插件绑定关系</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%B8%B8%E7%94%A8%E6%9E%84%E5%BB%BA%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5%E8%A1%A8"><span class="toc-number">1.7.</span> <span class="toc-text">七、常用构建命令速查表</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/03/28/%E6%8A%80%E6%9C%AF/java/%E6%A1%86%E6%9E%B6/Maven/Maven%E9%A1%B9%E7%9B%AE%E6%9E%84%E5%BB%BA%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/" title="Maven项目构建生命周期">Maven项目构建生命周期</a><time datetime="2025-03-27T16:24:58.000Z" title="发表于 2025-03-28 00:24:58">2025-03-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/03/27/test1/" title="test1">test1</a><time datetime="2025-03-27T11:05:10.000Z" title="发表于 2025-03-27 19:05:10">2025-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/03/27/test/" title="test">test</a><time datetime="2025-03-27T11:03:00.000Z" title="发表于 2025-03-27 19:03:00">2025-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/03/27/%E6%8A%80%E6%9C%AF/%E5%B7%A5%E5%85%B7/Snipaste%20+%20Hexo%20+%20GitHub%20+%20jsDelivr%20CDN%20%E5%9B%BE%E5%BA%8A%E6%96%B9%E6%A1%88/" title="Snipaste + Hexo + GitHub + jsDelivr CDN 图床方案">Snipaste + Hexo + GitHub + jsDelivr CDN 图床方案</a><time datetime="2025-03-27T08:52:33.000Z" title="发表于 2025-03-27 16:52:33">2025-03-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/03/27/%E6%8A%80%E6%9C%AF/java/%E6%A1%86%E6%9E%B6/SpringBoot%E6%95%B4%E5%90%88mybatis/" title="Spring整合mybatis">Spring整合mybatis</a><time datetime="2025-03-27T08:52:33.000Z" title="发表于 2025-03-27 16:52:33">2025-03-27</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(/img/海.jpg);"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By Neo</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.3.5</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title"></span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索一下~" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
